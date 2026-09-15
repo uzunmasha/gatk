@@ -1,0 +1,59 @@
+nextflow_workflow {
+
+    name "VARIANT_CALLING subworkflow tests"
+    script "subworkflows/variant_calling/main.nf"
+    workflow "VARIANT_CALLING"
+
+    test("Should call variants and produce final vcf") {
+
+        when {
+            params {
+                input_data_dir = "test_data"
+            }
+            workflow {
+                """
+                input[0] = Channel.of([[id: 'hg002_gm24385_sub'],
+                    file("${projectDir}/test_data/modules/call_variants/hg002_gm24385_sub_sorted.bam"),
+                    file("${projectDir}/test_data/modules/call_variants/hg002_gm24385_sub_sorted.bam.bai")])
+                input[1] = Channel.of([file("${projectDir}/test_data/chr20.fa"),
+                    file("${projectDir}/test_data/indices/chr20.fa.fai"),
+                    file("${projectDir}/test_data/indices/chr20.dict")])
+                """
+            }
+        }
+
+        then {
+            assert workflow.success
+
+            def vcf = workflow.out.final_vcf.get(0)
+            assert vcf[0].id == 'hg002_gm24385_sub'
+            def vcf_file = file(vcf[1])
+            assert vcf_file.exists()
+            assert vcf_file.size() > 0
+            assert vcf_file.name.endsWith('.vcf')
+        }
+    }
+
+    test("Should fail when bam file doesn't exist") {
+
+        when {
+            params {
+                input_data_dir = "test_data"
+            }
+            workflow {
+                """
+                input[0] = Channel.of([[id: 'invalid'],
+                    file("${projectDir}/test_data/modules/call_variants/nonexistent_sorted.bam"),
+                    file("${projectDir}/test_data/modules/call_variants/nonexistent_sorted.bam.bai")])
+                input[1] = Channel.of([file("${projectDir}/test_data/chr20.fa"),
+                    file("${projectDir}/test_data/indices/chr20.fa.fai"),
+                    file("${projectDir}/test_data/indices/chr20.dict")])
+                """
+            }
+        }
+
+        then {
+            assert !workflow.success
+        }
+    }
+}

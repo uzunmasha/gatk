@@ -1,0 +1,50 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://raw.githubusercontent.com/uzunm/gatk/master/assets/schema_input.json",
+    "title": "gatk pipeline - FASTQ input samplesheet schema",
+    "description": "Schema for the samplesheet file containing FASTQ file paths. Multiple rows with the same sample name will be treated as technical replicates and merged.",
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "sample": {
+                "type": "string",
+                "pattern": "^\\S+$",
+                "errorMessage": "Sample name must be provided and cannot contain spaces",
+                "description": "Custom sample name for the input FASTQ files. Multiple rows with the same sample name will be treated as technical replicates."
+            },
+            "fastq_1": {
+                "type": "string",
+                "pattern": "^\\S+\\.f(ast)?q\\.gz$",
+                "format": "file-path",
+                "exists": true,
+                "errorMessage": "FastQ file for reads 1 must be provided, cannot contain spaces, must have extension '.fq.gz' or '.fastq.gz', and must exist",
+                "description": "Path to the FASTQ file for read 1. Can be a local path or S3 URI."
+            },
+            "fastq_2": {
+                "errorMessage": "FastQ file for reads 2 cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'",
+                "description": "Path to the FASTQ file for read 2. Can be a local path or S3 URI. Leave empty for single-end data.",
+                "anyOf": [
+                    {
+                        "type": "string",
+                        "pattern": "^\\S+\\.f(ast)?q\\.gz$",
+                        "format": "file-path",
+                        "exists": true
+                    },
+                    {
+                        "type": "string",
+                        "maxLength": 0
+                    }
+                ]
+            }
+        },
+        "required": ["sample", "fastq_1"],
+        "errorMessage": {
+            "required": {
+                "sample": "Missing required column 'sample' (no spaces allowed)",
+                "fastq_1": "Missing required column 'fastq_1' (must be .fq.gz or .fastq.gz)"
+            },
+            "_": "Samplesheet must contain columns: sample,fastq_1"
+        }
+    }
+}

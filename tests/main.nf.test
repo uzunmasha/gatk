@@ -1,0 +1,110 @@
+nextflow_pipeline {
+
+    name "GATK pipeline test"
+    script "main.nf"
+
+    test("Should run full pipeline and produce final vcf") {
+
+        when {
+            params {
+                reference = "${projectDir}/test_data/chr20.fa"
+                input = "${projectDir}/test_data/samplesheet.csv"
+            }
+        }
+
+        then {
+            assert workflow.success
+
+            def vcf_dir = new File("${launchDir}/results/variant_calling/genotype")
+            assert vcf_dir.exists()
+
+            def vcf_files = vcf_dir.listFiles()?.findAll { it.name.endsWith('.vcf') }
+            assert vcf_files?.size() > 0
+
+            def vcf_file = vcf_files[0]
+            assert vcf_file.size() > 0
+        }
+    }
+
+    test("Should fail when reference file doesn't exist") {
+
+        when {
+            params {
+                reference = "${projectDir}/test_data/nonexistent.fa"
+                input = "${projectDir}/test_data/samplesheet.csv"
+            }
+        }
+
+        then {
+            assert !workflow.success
+        }
+    }
+
+    test("Should fail when fastq files in samplesheet don't exist") {
+
+        when {
+            params {
+                reference = "${projectDir}/test_data/chr20.fa"
+                input = "${projectDir}/test_data/samplesheet_missing_fastq.csv"
+            }
+        }
+
+        then {
+            assert !workflow.success
+        }
+    }
+
+    test("Should fail when reference param is missing") {
+
+        when {
+            params {
+                input = "${projectDir}/test_data/samplesheet.csv"
+            }
+        }
+
+        then {
+            assert !workflow.success
+        }
+    }
+
+    test("Should fail when input param is missing") {
+
+        when {
+            params {
+                reference = "${projectDir}/test_data/chr20.fa"
+            }
+        }
+
+        then {
+            assert !workflow.success
+        }
+    }
+
+    test("Should fail when samplesheet file doesn't exist") {
+
+        when {
+            params {
+                reference = "${projectDir}/test_data/chr20.fa"
+                input = "${projectDir}/test_data/no_such_samplesheet.csv"
+            }
+        }
+
+        then {
+            assert !workflow.success
+        }
+    }
+
+    test("Should fail when reference file is empty or corrupted") {
+
+        when {
+            params {
+                reference = "${projectDir}/test_data/empty.fa"
+                input = "${projectDir}/test_data/samplesheet.csv"
+            }
+        }
+
+        then {
+            assert !workflow.success
+        }
+    }
+}

@@ -1,0 +1,49 @@
+nextflow_process {
+
+    name "CALL_VARIANTS module tests"
+    script "modules/call_variants/main.nf"
+    process "CALL_VARIANTS"
+
+    test("Should call variants for valid indexed bam and reference") {
+
+        when {
+            params {
+                input_data_dir = "tests/results"
+            }
+            process {
+                """
+                input[0] = [[id: 'hg002_gm24385_sub'], file("${projectDir}/test_data/modules/call_variants/hg002_gm24385_sub_sorted.bam"), file("${projectDir}/test_data/modules/call_variants/hg002_gm24385_sub_sorted.bam.bai")]
+                input[1] = [file("${projectDir}/test_data/chr20.fa"), file("${projectDir}/test_data/indices/chr20.fa.fai"), file("${projectDir}/test_data/indices/chr20.dict")]
+                """
+            }
+        }
+
+        then {
+            assert process.success
+
+            def outTuple = process.out.called_variants.get(0)
+            assert outTuple[0].id == 'hg002_gm24385_sub'
+            assert file(outTuple[1]).name == 'hg002_gm24385_sub.g.vcf'
+            assert file(outTuple[1]).size() > 0
+        }
+    }
+
+    test("Should fail when bam file doesn't exist") {
+
+        when {
+            params {
+                input_data_dir = "tests/results"
+            }
+            process {
+                """
+                input[0] = [[id: 'invalid'], file("${projectDir}/test_data/modules/call_variants/does_not_exist.bam"), file("${projectDir}/test_data/modules/call_variants/does_not_exist.bam.bai")]
+                input[1] = [file("${projectDir}/test_data/chr20.fa"), file("${projectDir}/test_data/indices/chr20.fa.fai"), file("${projectDir}/test_data/indices/chr20.dict")]
+                """
+            }
+        }
+
+        then {
+            assert !process.success
+        }
+    }
+}

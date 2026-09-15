@@ -1,0 +1,47 @@
+nextflow_process {
+
+    name "CONSOLIDATE_GVCFS module tests"
+    script "modules/consolidate_gvcfs/main.nf"
+    process "CONSOLIDATE_GVCFS"
+
+    test("Should consolidate gvcfs into genomicsdb workspace") {
+
+        when {
+            params {
+                input_data_dir = "tests/results"
+            }
+            process {
+                """
+                input[0] = [[id: 'hg002_gm24385_sub'], file("${projectDir}/test_data/modules/consolidate_gvcfs/gvcf_list.txt")]
+                """
+            }
+        }
+
+        then {
+            assert process.success
+
+            def outTuple = process.out.consolidated_gvcfs.get(0)
+            assert outTuple[0].id == 'hg002_gm24385_sub'
+            assert file(outTuple[1]).isDirectory()
+            assert file(outTuple[1]).name == 'hg002_gm24385_sub_genomicsdb'
+        }
+    }
+
+    test("Should fail when gvcf files in list don't exist") {
+
+        when {
+            params {
+                input_data_dir = "tests/results"
+            }
+            process {
+                """
+                input[0] = [[id: 'invalid'], file("${projectDir}/test_data/modules/consolidate_gvcfs/invalid_gvcf_list.txt")]
+                """
+            }
+        }
+
+        then {
+            assert !process.success
+        }
+    }
+}

@@ -1,0 +1,59 @@
+nextflow_process {
+
+    name "CREATE_GENOME_INDEX module tests"
+    script "modules/create_genome_index/main.nf"
+    process "CREATE_GENOME_INDEX"
+
+    test("Should successfully build bwa index files for valid reference") {
+
+        when {
+            params {
+                input_data_dir = "tests/results"
+            }
+            process {
+                """
+                input[0] = [id: 'test_genome']
+                input[1] = file("${projectDir}/test_data/chr20.fa")
+                """
+            }
+        }
+
+        then {
+            assert process.success
+
+            def outTuple = process.out.indexed_reference.get(0)
+            assert outTuple[0].id == 'test_genome'
+            assert file(outTuple[1]).name == 'chr20.fa'
+
+            def outputNames = outTuple[2].collect { file(it).name }.sort()
+            assert outputNames == [
+                'chr20.fa.amb',
+                'chr20.fa.ann',
+                'chr20.fa.bwt',
+                'chr20.fa.pac',
+                'chr20.fa.sa'
+            ]
+
+            outTuple[2].each { assert file(it).size() > 0 }
+        }
+    }
+
+    test("Should fail for missing reference file") {
+
+        when {
+            params {
+                input_data_dir = "tests/results"
+            }
+            process {
+                """
+                input[0] = [id: 'invalid_genome']
+                input[1] = file("${projectDir}/test_data/modules/create_genome_index/does_not_exist.fa")
+                """
+            }
+        }
+
+        then {
+            assert !process.success
+        }
+    }
+}

@@ -1,0 +1,7 @@
+test_data/
+results/
+test_results/
+work/
+.nf-test/
+.nextflow*
+CHANGELOG.md

@@ -1,0 +1,49 @@
+nextflow_process {
+
+    name "GENOTYPE module tests"
+    script "modules/genotype/main.nf"
+    process "GENOTYPE"
+
+    test("Should genotype variants from genomicsdb workspace") {
+
+        when {
+            params {
+                input_data_dir = "tests/results"
+            }
+            process {
+                """
+                input[0] = [[id: 'test'], file("${projectDir}/test_data/modules/genotype/genomicsdb")]
+                input[1] = [file("${projectDir}/test_data/chr20.fa"), file("${projectDir}/test_data/indices/chr20.fa.fai"), file("${projectDir}/test_data/indices/chr20.dict")]
+                """
+            }
+        }
+
+        then {
+            assert process.success
+
+            def vcfTuple = process.out.final_vcf.get(0)
+            assert vcfTuple[0].id == 'test'
+            assert file(vcfTuple[1]).exists()
+            assert file(vcfTuple[1]).size() > 0
+        }
+    }
+
+    test("Should fail when genomicsdb workspace doesn't exist") {
+
+        when {
+            params {
+                input_data_dir = "tests/results"
+            }
+            process {
+                """
+                input[0] = [[id: 'invalid'], file("${projectDir}/test_data/modules/genotype/nonexistent_genomicsdb")]
+                input[1] = [file("${projectDir}/test_data/chr20.fa"), file("${projectDir}/test_data/indices/chr20.fa.fai"), file("${projectDir}/test_data/indices/chr20.dict")]
+                """
+            }
+        }
+
+        then {
+            assert !process.success
+        }
+    }
+}

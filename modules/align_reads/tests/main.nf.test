@@ -1,0 +1,61 @@
+nextflow_process {
+
+    name "ALIGN_READS module tests"
+    script "modules/align_reads/main.nf"
+    process "ALIGN_READS"
+
+    test("Should align reads for valid indexed reference") {
+
+        when {
+            params {
+                input_data_dir = "tests/results"
+            }
+            process {
+                """
+                input[0] = ['hg002_gm24385_sub', file("${projectDir}/test_data/hg002_gm24385_sub_R1.fastq.gz"), file("${projectDir}/test_data/hg002_gm24385_sub_R2.fastq.gz")]
+                input[1] = [[id: 'hg002_gm24385_sub'], file("${projectDir}/test_data/modules/align_reads/chr20.fa"), [
+                    file("${projectDir}/test_data/modules/align_reads/chr20.fa.amb"),
+                    file("${projectDir}/test_data/modules/align_reads/chr20.fa.ann"),
+                    file("${projectDir}/test_data/modules/align_reads/chr20.fa.bwt"),
+                    file("${projectDir}/test_data/modules/align_reads/chr20.fa.pac"),
+                    file("${projectDir}/test_data/modules/align_reads/chr20.fa.sa")
+                ]]
+                """
+            }
+        }
+
+        then {
+            assert process.success
+
+            def outTuple = process.out.aligned_reads.get(0)
+            assert outTuple[0].id == 'hg002_gm24385_sub'
+            assert file(outTuple[1]).name == 'hg002_gm24385_sub.sam'
+            assert file(outTuple[1]).size() > 0
+        }
+    }
+
+    test("Should fail when reference files doesn't exist") {
+
+        when {
+            params {
+                input_data_dir = "tests/results"
+            }
+            process {
+                """
+                input[0] = ['hg002_gm24385_sub', file("${projectDir}/test_data/hg002_gm24385_sub_R1.fastq.gz"), file("${projectDir}/test_data/hg002_gm24385_sub_R2.fastq.gz")]
+                input[1] = [[id: 'hg002_gm24385_sub'], file("${projectDir}/test_data/modules/align_reads/invalid_reference.fa"), [
+                    file("${projectDir}/test_data/modules/align_reads/invalid_reference.fa.amb"),
+                    file("${projectDir}/test_data/modules/align_reads/invalid_reference.fa.ann"),
+                    file("${projectDir}/test_data/modules/align_reads/invalid_reference.fa.bwt"),
+                    file("${projectDir}/test_data/modules/align_reads/invalid_reference.fa.pac"),
+                    file("${projectDir}/test_data/modules/align_reads/invalid_reference.fa.sa")
+                ]]
+                """
+            }
+        }
+
+        then {
+            assert !process.success
+        }
+    }
+}

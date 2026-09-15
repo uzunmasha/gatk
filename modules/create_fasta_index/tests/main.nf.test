@@ -1,0 +1,48 @@
+nextflow_process {
+
+    name "CREATE_FASTA_INDEX module tests"
+    script "modules/create_fasta_index/main.nf"
+    process "CREATE_FASTA_INDEX"
+
+    test("Should create a fasta index for a valid reference") {
+
+        when {
+            params {
+                input_data_dir = "tests/results"
+            }
+            process {
+                """
+                input[0] = [id: 'test_genome']
+                input[1] = file("${projectDir}/test_data/chr20.fa")
+                """
+            }
+        }
+
+        then {
+            assert process.success
+
+            def faiFile = process.out.fasta_index.get(0)
+            assert file(faiFile).name == 'chr20.fa.fai'
+            assert file(faiFile).size() > 0
+        }
+    }
+
+    test("Should fail when reference file doesn't exist") {
+
+        when {
+            params {
+                input_data_dir = "tests/results"
+            }
+            process {
+                """
+                input[0] = [id: 'invalid_genome']
+                input[1] = file("${projectDir}/test_data/modules/create_fasta_index/does_not_exist.fa")
+                """
+            }
+        }
+
+        then {
+            assert !process.success
+        }
+    }
+}

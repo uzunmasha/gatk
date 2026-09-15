@@ -1,0 +1,47 @@
+nextflow_process {
+
+    name "SORT_BAM module tests"
+    script "modules/sort_bam/main.nf"
+    process "SORT_BAM"
+
+    test("Should sort a valid bam file") {
+
+        when {
+            params {
+                input_data_dir = "tests/results"
+            }
+            process {
+                """
+                input[0] = [[id: 'hg002_gm24385_sub'], file("${projectDir}/test_data/modules/sort_bam/hg002_gm24385_sub_rg.bam")]
+                """
+            }
+        }
+
+        then {
+            assert process.success
+
+            def outTuple = process.out.sorted_bam.get(0)
+            assert outTuple[0].id == 'hg002_gm24385_sub'
+            assert file(outTuple[1]).name == 'hg002_gm24385_sub_sorted.bam'
+            assert file(outTuple[1]).size() > 0
+        }
+    }
+
+    test("Should fail when bam file doesn't exist") {
+
+        when {
+            params {
+                input_data_dir = "tests/results"
+            }
+            process {
+                """
+                input[0] = [[id: 'invalid'], file("${projectDir}/test_data/modules/sort_bam/does_not_exist.bam")]
+                """
+            }
+        }
+
+        then {
+            assert !process.success
+        }
+    }
+}
