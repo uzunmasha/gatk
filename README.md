@@ -139,7 +139,7 @@ This pipeline is configured to use nf-test for comprehensive testing:
 ./nf-test test
 
 # Run specific test file
-./nf-test test tests/modules/create_genome_index/main.nf.test
+./nf-test test modules/local/create_genome_index/tests/main.nf.test
 
 # Run tests with specific profile
 nf-test test . --profile docker

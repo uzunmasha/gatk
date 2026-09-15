@@ -1,8 +1,8 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl=2
 
-include { PREPROCESSING } from '../subworkflows/preprocessing/main.nf'
-include { VARIANT_CALLING } from '../subworkflows/variant_calling/main.nf'
+include { PREPROCESSING } from '../subworkflows/local/preprocessing/main.nf'
+include { VARIANT_CALLING } from '../subworkflows/local/variant_calling/main.nf'
 
 workflow GATK {
     take:
