@@ -1,54 +1,54 @@
 {
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://raw.githubusercontent.com/uzunm/gatk/master/nextflow_schema.json",
-    "title": "gatk pipeline parameters",
-    "description": "GATK germline short-variant calling pipeline: BWA alignment, HaplotypeCaller, GenomicsDBImport, GenotypeGVCFs",
-    "type": "object",
-    "$defs": {
-        "input_output_options": {
-            "title": "Input/output options",
-            "type": "object",
-            "description": "Define where the pipeline should find input data and save output data.",
-            "required": ["reference", "input"],
-            "properties": {
-                "input_data_dir": {
-                    "type": "string",
-                    "default": "test_data",
-                    "description": "Directory containing input data and cached genome indices (e.g. 'indices/<reference>.{amb,ann,bwt,pac,sa}')."
-                },
-                "reference": {
-                    "type": "string",
-                    "format": "file-path",
-                    "pattern": "^\\S+\\.(fa|fasta|fna)(\\.gz)?$",
-                    "exists": true,
-                    "description": "Path to the reference genome FASTA file.",
-                    "errorMessage": "Reference file must have extension '.fa', '.fasta' or '.fna' (optionally gzipped), cannot contain spaces, and must exist."
-                },
-                "input": {
-                    "type": "string",
-                    "format": "file-path",
-                    "exists": true,
-                    "pattern": "^\\S+\\.csv$",
-                    "schema": "assets/schema_input.json",
-                    "description": "Path to comma-separated samplesheet listing samples and their FASTQ file paths (columns: sample,fastq_1,fastq_2). Each row is validated against assets/schema_input.json.",
-                    "errorMessage": "Samplesheet must be an existing CSV file, cannot contain spaces."
-                },
-                "output_dir": {
-                    "type": "string",
-                    "default": "results",
-                    "description": "Directory to publish pipeline outputs."
-                },
-                "intervals": {
-                    "type": "string",
-                    "default": "chr20",
-                    "description": "Interval(s) passed to GATK GenomicsDBImport when aggregating GVCFs. Example: 'chr20' or 'chr1,chr2'."
-                }
-            }
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/uzunm/gatk/master/nextflow_schema.json",
+  "title": "gatk pipeline parameters",
+  "description": "GATK germline short-variant calling pipeline: BWA alignment, HaplotypeCaller, GenomicsDBImport, GenotypeGVCFs",
+  "type": "object",
+  "$defs": {
+    "input_output_options": {
+      "title": "Input/output options",
+      "type": "object",
+      "description": "Define where the pipeline should find input data and save output data.",
+      "required": ["reference", "input"],
+      "properties": {
+        "input_data_dir": {
+          "type": "string",
+          "default": "test_data",
+          "description": "Directory containing input data and cached genome indices (e.g. 'indices/<reference>.{amb,ann,bwt,pac,sa}')."
+        },
+        "reference": {
+          "type": "string",
+          "format": "file-path",
+          "pattern": "^\\S+\\.(fa|fasta|fna)(\\.gz)?$",
+          "exists": true,
+          "description": "Path to the reference genome FASTA file.",
+          "errorMessage": "Reference file must have extension '.fa', '.fasta' or '.fna' (optionally gzipped), cannot contain spaces, and must exist."
+        },
+        "input": {
+          "type": "string",
+          "format": "file-path",
+          "exists": true,
+          "pattern": "^\\S+\\.csv$",
+          "schema": "assets/schema_input.json",
+          "description": "Path to comma-separated samplesheet listing samples and their FASTQ file paths (columns: sample,fastq_1,fastq_2). Each row is validated against assets/schema_input.json.",
+          "errorMessage": "Samplesheet must be an existing CSV file, cannot contain spaces."
+        },
+        "output_dir": {
+          "type": "string",
+          "default": "results",
+          "description": "Directory to publish pipeline outputs."
+        },
+        "intervals": {
+          "type": "string",
+          "default": "chr20",
+          "description": "Interval(s) passed to GATK GenomicsDBImport when aggregating GVCFs. Example: 'chr20' or 'chr1,chr2'."
         }
-    },
-    "allOf": [
-        {
-            "$ref": "#/$defs/input_output_options"
-        }
-    ]
+      }
+    }
+  },
+  "allOf": [
+    {
+      "$ref": "#/$defs/input_output_options"
+    }
+  ]
 }

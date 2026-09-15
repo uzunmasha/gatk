@@ -28,12 +28,14 @@ The pipeline supports a single main workflow:
 The GATK germline variant calling pipeline starts with input of a samplesheet containing sample identifiers and paired-end FASTQ file paths. The pipeline performs the following steps:
 
 **Preprocessing Phase:**
+
 - Reference genome indexing (BWA, sequence dictionary, and FAI index) is performed once and cached for reuse
 - Individual read alignment using BWA MEM against the reference genome
 - Read group assignment and BAM header preparation using Picard AddOrReplaceReadGroups
 - BAM sorting and indexing using samtools
 
 **Variant Calling Phase:**
+
 - GVCF generation using GATK HaplotypeCaller for each sample independently
 - Consolidation of multiple GVCFs into a GenomicsDB workspace (scoped to specified genomic regions)
 - Joint genotyping across all samples using GATK GenotypeGVCFs to produce a final joint-called VCF
@@ -45,6 +47,7 @@ All outputs are organized by processing stage and easily located in the results 
 The pipeline follows a modular architecture with two main subworkflows:
 
 - **PREPROCESSING**: Indexes the reference genome (if not already cached), aligns reads with BWA MEM, adds read group information with Picard, and sorts/indexes BAM files with samtools. Outputs indexed BAM files for each sample.
+
   - Genome indexing is conditionally skipped if indices already exist on disk in `${params.input_data_dir}/indices/<reference>.*`
 
 - **VARIANT_CALLING**: Runs GATK HaplotypeCaller per sample in GVCF mode, builds a sample-name-to-path map, consolidates GVCFs into a GenomicsDB workspace, and performs joint genotyping with GenotypeGVCFs to produce the final VCF.
@@ -148,6 +151,7 @@ nf-test test . --profile docker
 ### Test Data
 
 Test data is included in the `test_datasets/` directory and includes:
+
 - Reference genome (hg38, chr20 subset)
 - Sample FASTQ files for testing
 
@@ -173,6 +177,7 @@ nextflow run main.nf -profile test,docker
 ## Documentation
 
 **Pipeline Documentation:**
+
 - [Usage Guide](docs/usage.md): Comprehensive guide on how to use the pipeline
 - [Output Documentation](docs/output.md): Detailed description of pipeline outputs
 - [Parameters Description](docs/params.md): Detailed description of pipeline parameters
