@@ -27,11 +27,11 @@ SAMPLE1,/path/to/sample1_R1.fastq.gz,/path/to/sample1_R2.fastq.gz
 SAMPLE2,/path/to/sample2_R1.fastq.gz,/path/to/sample2_R2.fastq.gz
 ```
 
-| Column    | Description                                                                                            |
+| Column    | Description                                                                                              |
 | --------- | -------------------------------------------------------------------------------------------------------- |
-| `sample`  | Custom sample name. Cannot contain spaces.                                                                |
-| `fastq_1` | Full path to a gzipped FASTQ file for read 1 (`.fastq.gz` or `.fq.gz`). Required.                          |
-| `fastq_2` | Full path to a gzipped FASTQ file for read 2 (`.fastq.gz` or `.fq.gz`). Leave empty for single-end data.   |
+| `sample`  | Custom sample name. Cannot contain spaces.                                                               |
+| `fastq_1` | Full path to a gzipped FASTQ file for read 1 (`.fastq.gz` or `.fq.gz`). Required.                        |
+| `fastq_2` | Full path to a gzipped FASTQ file for read 2 (`.fastq.gz` or `.fq.gz`). Leave empty for single-end data. |
 
 Pass the samplesheet path with `--input`.
 
@@ -58,16 +58,16 @@ nextflow run uzunmasha/gatk \
 
 ### Parameters
 
-| Parameter               | Description                                                                                     | Default       |
-| ------------------------ | ------------------------------------------------------------------------------------------------- | ------------- |
-| `--input`                | Path to the input samplesheet CSV (required).                                                     | –             |
-| `--reference`             | Path to the reference genome FASTA (required).                                                    | –             |
-| `--input_data_dir`        | Directory holding input/test data and cached genome indices.                                      | `test_data`   |
-| `--outdir`            | Directory where pipeline outputs are published.                                                   | `results`     |
-| `--intervals`             | Genomic interval(s) passed to `GenomicsDBImport`/joint genotyping (e.g. `chr20`, `chr1,chr2`).    | `chr20`       |
-| `--container_image`       | Container image used by the `docker` profile.                                                     | `gatk-pipeline:latest` |
-| `--rglb`, `--rgpl`, `--rgpu` | Read group `LB`/`PL`/`PU` values passed to Picard `AddOrReplaceReadGroups`.                     | `lib1` / `ILLUMINA` / `unit1` |
-| `--haplotypecaller_args`  | Extra arguments appended to the `gatk HaplotypeCaller` command line.                               | – (none)      |
+| Parameter                    | Description                                                                                    | Default                       |
+| ---------------------------- | ---------------------------------------------------------------------------------------------- | ----------------------------- |
+| `--input`                    | Path to the input samplesheet CSV (required).                                                  | –                             |
+| `--reference`                | Path to the reference genome FASTA (required).                                                 | –                             |
+| `--input_data_dir`           | Directory holding input/test data and cached genome indices.                                   | `test_data`                   |
+| `--outdir`                   | Directory where pipeline outputs are published.                                                | `results`                     |
+| `--intervals`                | Genomic interval(s) passed to `GenomicsDBImport`/joint genotyping (e.g. `chr20`, `chr1,chr2`). | `chr20`                       |
+| `--container_image`          | Container image used by the `docker` profile.                                                  | `gatk-pipeline:latest`        |
+| `--rglb`, `--rgpl`, `--rgpu` | Read group `LB`/`PL`/`PU` values passed to Picard `AddOrReplaceReadGroups`.                    | `lib1` / `ILLUMINA` / `unit1` |
+| `--haplotypecaller_args`     | Extra arguments appended to the `gatk HaplotypeCaller` command line.                           | – (none)                      |
 
 ## Profiles
 
@@ -121,4 +121,5 @@ If the Nextflow Java process itself requests too much memory, cap it in your she
 ```bash
 NXF_OPTS='-Xms1g -Xmx4g'
 ```
+
 </content>

@@ -5,6 +5,7 @@ lint:
     - assets/nf-core-gatk_logo_light.png
     - docs/images/nf-core-gatk_logo_light.png
     - docs/images/nf-core-gatk_logo_dark.png
+    - docs/CONTRIBUTING.md
     - CITATIONS.md
     - LICENSE
     - CODE_OF_CONDUCT.md
