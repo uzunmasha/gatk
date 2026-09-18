@@ -100,7 +100,7 @@ For detailed usage instructions, please refer to the [usage documentation](docs/
 - `--input` - Path to CSV samplesheet containing sample information (columns: sample, fastq_1, fastq_2)
 - `--reference` - Reference genome FASTA file path
 - `--input_data_dir` - Directory containing input data and cached indices
-- `--output_dir` - Output directory for pipeline results (default: `results/`)
+- `--outdir` - Output directory for pipeline results (default: `results/`)
 - `--container_image` - Docker container image to use for pipeline execution (default: `gatk-pipeline:latest`)
 
 ### Genome Indexing

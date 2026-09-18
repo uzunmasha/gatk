@@ -33,7 +33,7 @@
           "description": "Path to comma-separated samplesheet listing samples and their FASTQ file paths (columns: sample,fastq_1,fastq_2). Each row is validated against assets/schema_input.json.",
           "errorMessage": "Samplesheet must be an existing CSV file, cannot contain spaces."
         },
-        "output_dir": {
+        "outdir": {
           "type": "string",
           "default": "results",
           "description": "Directory to publish pipeline outputs."

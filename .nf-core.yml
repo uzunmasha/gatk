@@ -1,1 +1,32 @@
 repository_type: pipeline
+lint:
+  files_exist:
+    - tests/default.nf.test
+    - assets/nf-core-gatk_logo_light.png
+    - docs/images/nf-core-gatk_logo_light.png
+    - docs/images/nf-core-gatk_logo_dark.png
+    - CITATIONS.md
+    - LICENSE
+    - CODE_OF_CONDUCT.md
+    - .github/ISSUE_TEMPLATE/bug_report.yml
+    - .github/ISSUE_TEMPLATE/feature_request.yml
+    - .github/ISSUE_TEMPLATE/config.yml
+    - .github/workflows/branch.yml
+    - .github/workflows/pr-comment.yml
+    - .github/workflows/nf-test.yml
+    - .github/actions/get-shards/action.yml
+    - .github/actions/nf-test/action.yml
+  nextflow_config:
+    - manifest.name
+    - manifest.homePage
+  multiqc_config: False
+  nf_test_content:
+    - tests/main.nf.test
+  template_strings:
+    - test_data/indices/chr20.fa.bwt
+    - test_data/indices/chr20.fa.pac
+    - test_data/modules/align_reads/chr20.fa.bwt
+    - test_data/modules/align_reads/chr20.fa.pac
+    - test_data/modules/call_variants/hg002_gm24385_sub_sorted.bam
+    - test_data/modules/index_bam/hg002_gm24385_sub_sorted.bam
+    - test_data/modules/sort_bam/hg002_gm24385_sub_rg.bam

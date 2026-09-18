@@ -27,7 +27,7 @@ workflow GATK {
     versions_ch
         .map { version_file -> version_file.text }
         .unique()
-        .collectFile(name: 'software_versions.yml', storeDir: params.output_dir)
+        .collectFile(name: 'software_versions.yml', storeDir: params.outdir)
 
     emit:
     final_vcf = VARIANT_CALLING.out.final_vcf
