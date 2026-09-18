@@ -1,0 +1,35 @@
+name: nf-test CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  nf-test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        NXF_VER:
+          - "24.04.0"
+          - "latest-everything"
+
+    steps:
+      - name: Check out pipeline code
+        uses: actions/checkout@v4
+
+      - name: Install Nextflow
+        uses: nf-core/setup-nextflow@v2
+        with:
+          version: "${{ matrix.NXF_VER }}"
+
+      - name: Install nf-test
+        uses: nf-core/setup-nf-test@v1
+
+      - name: Build Docker image
+        run: docker build -t gatk-pipeline:latest -f docker/Dockerfile .
+
+      - name: Run nf-test
+        run: nf-test test --ci
