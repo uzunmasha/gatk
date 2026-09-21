@@ -108,4 +108,4 @@ jobs:
             -f docker/Dockerfile .
 
       - name: Run nf-test
-        run: nf-test test . --ci -profile ci,docker
+        run: nf-test test . --ci --profile ci,docker
