@@ -100,13 +100,6 @@ jobs:
 
           rm nf-test.tar.gz
 
-      - name: Verify setup
-        run: |
-          nextflow -version
-          nf-test --version
-          git lfs version
-          docker --version
-
       - name: Build Docker image
         run: |
           docker build \
