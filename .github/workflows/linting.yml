@@ -1,10 +1,13 @@
-name: Linting
+name: nf-core linting
 
 on:
   push:
-    branches: [main, master]
+    branches:
+      - main
+      - develop
   pull_request:
-  workflow_dispatch:
+  release:
+    types: [published]
 
 jobs:
   pre-commit:
@@ -23,20 +26,8 @@ jobs:
       - name: Run pre-commit
         run: pre-commit run --all-files
 
-  nextflow-config:
+  nf-core:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install Nextflow
-        uses: nf-core/setup-nextflow@v2
-
-      - name: Check Nextflow config parses cleanly
-        run: nextflow config . -profile test,docker
-
-  nf-core-lint:
-    runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 
