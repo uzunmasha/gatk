@@ -108,7 +108,7 @@ jobs:
         run: |
           docker build \
             --platform linux/amd64 \
-            -t gatk-pipeline:latest \
+            -t gatk-pipeline:v1.0.0 \
             -f docker/Dockerfile .
 
       - name: "Run pipeline with test data ${{ matrix.NXF_VER }} | ${{ matrix.test_name }} | ${{ matrix.profile }}"
