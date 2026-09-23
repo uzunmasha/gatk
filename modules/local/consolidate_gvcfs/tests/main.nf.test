@@ -12,7 +12,7 @@ nextflow_process {
             }
             process {
                 """
-                input[0] = [[id: 'hg002_gm24385_sub'], file("${projectDir}/test_data/modules/consolidate_gvcfs/gvcf_list.txt")]
+                input[0] = [[id: 'hg002_gm24385_sub'], file("${projectDir}/test_data/modules/consolidate_gvcfs/gvcf_list.txt"), file("${projectDir}/test_data/modules/consolidate_gvcfs/*.g.vcf")]
                 """
             }
         }
@@ -35,7 +35,7 @@ nextflow_process {
             }
             process {
                 """
-                input[0] = [[id: 'invalid'], file("${projectDir}/test_data/modules/consolidate_gvcfs/invalid_gvcf_list.txt")]
+                input[0] = [[id: 'invalid'], file("${projectDir}/test_data/modules/consolidate_gvcfs/invalid_gvcf_list.txt"), file("${projectDir}/test_data/modules/consolidate_gvcfs/*.g.vcf")]
                 """
             }
         }
