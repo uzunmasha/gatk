@@ -5,7 +5,7 @@ process CONSOLIDATE_GVCFS {
     label 'error_terminate'
 
     input:
-    tuple val(meta), path ("gvcf_list.txt"), path ("*.g.vcf")
+    tuple val(meta), path ("gvcf_list.txt")
 
     output:
     tuple val(meta), path("${meta.id}_genomicsdb"), emit: consolidated_gvcfs
