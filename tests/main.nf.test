@@ -4,19 +4,27 @@ nextflow_pipeline {
     script "main.nf"
 
     test("Should run full pipeline and produce final vcf") {
+        setup {
+            def samplesheet = new File("${outputDir}/samplesheet.csv")
+
+            samplesheet.text = """sample,fastq_1,fastq_2
+hg002_gm24385_sub,${projectDir}/test_data/hg002_gm24385_sub_R1.fastq.gz,${projectDir}/test_data/hg002_gm24385_sub_R2.fastq.gz
+"""
+        }
 
         when {
             params {
                 outdir    = "$outputDir"
                 reference = "${projectDir}/test_data/chr20.fa"
-                input     = "${projectDir}/test_data/samplesheet.csv"
+                input     = "${outputDir}/samplesheet.csv"
             }
         }
 
         then {
+
             assert workflow.success
 
-            def vcf_dir = new File("${launchDir}/results/variant_calling/genotype")
+            def vcf_dir = new File("${outputDir}/variant_calling/genotype")
             assert vcf_dir.exists()
 
             def vcf_files = vcf_dir.listFiles()?.findAll { it.name.endsWith('.vcf') }
