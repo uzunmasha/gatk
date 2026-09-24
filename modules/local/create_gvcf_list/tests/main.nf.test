@@ -1,0 +1,33 @@
+nextflow_process {
+
+    name "CREATE_GVCF_LIST module tests"
+    script "modules/local/create_gvcf_list/main.nf"
+    process "CREATE_GVCF_LIST"
+
+    test("Should create a gvcf list for valid gvcf files") {
+
+        when {
+            params {
+                input_data_dir = "tests/results"
+            }
+            process {
+                """
+                input[0] = [[id: 'hg002_gm24385_sub'], [file("${projectDir}/test_data/modules/create_gvcf_list/hg002_gm24385_sub.g.vcf")]]
+                """
+            }
+        }
+
+        then {
+            assert process.success
+
+            def outTuple = process.out.gvcf_list.get(0)
+            assert outTuple[0].id == 'hg002_gm24385_sub'
+            assert file(outTuple[1]).name == 'hg002_gm24385_sub_gvcf_list.txt'
+            assert file(outTuple[1]).size() > 0
+
+            def content = file(outTuple[1]).text
+            assert content.contains('hg002_gm24385_sub')
+            assert content.contains('.g.vcf')
+        }
+    }
+}
