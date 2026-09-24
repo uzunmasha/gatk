@@ -1,44 +1,74 @@
-# uzunmasha/gatk: Output
+# Variant calling pipeline: Output
 
 ## Introduction
 
 This document describes the output produced by the pipeline.
 
-The directories listed below are created inside `--outdir` (default: `results`) after the pipeline has finished. All paths are relative to that top-level output directory, unless noted otherwise.
+The pipeline writes execution metadata, software versions, and process outputs to `--outdir`. Publication is configured centrally in [`conf/modules.config`](../conf/modules.config) with `withName` selectors.
 
-## Pipeline overview
+## Output directory structure
 
-The pipeline processes paired-end FASTQ reads through alignment and germline short-variant calling:
+The pipeline publishes the following files and directories inside `--outdir` (default: `results`):
 
-- Preprocessing - genome indexing, alignment, read-group tagging, sorting and indexing of BAM files
-- Variant calling - per-sample GVCF calling, GenomicsDB consolidation and joint genotyping
-- Pipeline information - version information generated during the run
+```text
+<outdir>/
+├── software_versions.yml       # Software versions
+├── preprocessing/
+│   ├── aligned/                # BWA alignment SAM files
+│   ├── read_groups/             # Read-grouped BAM files
+│   ├── sorted/                  # Sorted BAM files
+│   └── indexed/                 # BAM index files (.bai)
+├── variant_calling/
+│   ├── gvcf/                    # GVCF files from HaplotypeCaller
+│   ├── gvcf_lists/              # GVCF sample map files
+│   ├── genomicsdb/              # GenomicsDB workspace
+│   └── genotype/                # Final joint-called VCF
+└── pipeline_info/               # Execution reports, timeline, trace, and DAG
+```
 
-## Genome index (cached, outside `--outdir`)
+- `software_versions.yml`: versions collected from the preprocessing and variant-calling processes.
+- `pipeline_info/`: Nextflow execution reports, timeline, trace, and DAG files.
+- The `INDEX_BAM` process publishes only the `.bai` file to `preprocessing/indexed/`; the sorted BAM itself is published by `SORT_BAM` to `preprocessing/sorted/`.
+- The GenomicsDB directory is published recursively to `variant_calling/genomicsdb/`.
 
-The BWA index is built once and cached under `<input_data_dir>/indices/` (default: `test_data/indices/`), not under `--outdir`, so it can be reused across pipeline runs. If index files already exist there, indexing is skipped.
+## Genome index cache
 
-- `<reference>.amb`, `<reference>.ann`, `<reference>.bwt`, `<reference>.pac`, `<reference>.sa`: BWA index files for the reference genome.
+The BWA index is cached outside `--outdir`, under `<input_data_dir>/indices/` (default: `test_data/indices/`). When all five files already exist, genome indexing is skipped.
 
-## Preprocessing
+```text
+<input_data_dir>/indices/
+├── <reference>.amb
+├── <reference>.ann
+├── <reference>.bwt
+├── <reference>.pac
+├── <reference>.sa
+├── <reference>.fai
+└── <reference>.dict
+```
 
-Reads are aligned with `bwa mem`, tagged with read-group information, sorted and indexed. The sorted, indexed BAM in `preprocessing/indexed/` is the input to variant calling.
+## Process outputs
 
-- `preprocessing/aligned/<sample>.sam`: raw `bwa mem` alignment.
-- `preprocessing/read_groups/<sample>_rg.bam`: alignment with read groups added (Picard `AddOrReplaceReadGroups`).
-- `preprocessing/sorted/<sample>_sorted.bam`: coordinate-sorted BAM (`samtools sort`).
-- `preprocessing/indexed/<sample>_sorted.bam.bai`: BAM index (`samtools index`).
+The following process outputs are copied to the published directories shown above. The original process work-directory paths remain run-specific:
 
-## Variant calling
+### Preprocessing
 
-Each sample is called individually in GVCF mode, then imported into a GenomicsDB workspace and jointly genotyped over the region(s) given by `--intervals` (default `chr20`) to produce the final VCF.
+- `<sample>.sam`: alignment produced by BWA-MEM.
+- `<sample>_rg.bam`: BAM with read groups added by Picard.
+- `<sample>_sorted.bam`: coordinate-sorted BAM.
+- `<sample>_sorted.bam.bai`: BAM index.
 
-- `variant_calling/gvcf/<sample>.g.vcf`: per-sample GVCF produced by `gatk HaplotypeCaller` (`-ERC GVCF`).
-- `variant_calling/gvcf_lists/<sample>_gvcf_list.txt`: sample-to-GVCF-path map used as the `--sample-name-map` input to `GenomicsDBImport`.
-- `variant_calling/genomicsdb/<sample>_genomicsdb/`: GenomicsDB workspace built by `gatk GenomicsDBImport`.
-- `variant_calling/genotype/<sample>.vcf`: final joint-genotyped VCF produced by `gatk GenotypeGVCFs` — the pipeline's final output.
+### Variant calling
 
-## Pipeline information
+- `<sample>.g.vcf`: per-sample GVCF produced by GATK HaplotypeCaller.
+- `<sample>_gvcf_list.txt`: sample-name map used by GenomicsDBImport.
+- `<sample>_genomicsdb/`: GenomicsDB workspace produced by GenomicsDBImport.
+- `<sample>.vcf`: joint-genotyped VCF produced by GATK GenotypeGVCFs.
 
-- `software_versions.yml`: versions of the tools used in the pipeline run, written to the top level of `--outdir`.
-- `pipeline_info/`: Nextflow's own execution reports — `execution_timeline_*.html`, `execution_report_*.html`, `execution_trace_*.txt` and `pipeline_dag_*.html`.
+The final VCF is emitted as `VARIANT_CALLING.out.final_vcf` and `GATK.out.final_vcf`, and is published to `variant_calling/genotype/`.
+
+## Interpretation
+
+- GVCFs are intermediate files and are not the final genotype calls.
+- The GenomicsDB workspace is an intermediate input to GenotypeGVCFs.
+- The final VCF is restricted to the interval supplied with `--intervals`.
+- Keep the Nextflow work directory until unpublished outputs have been copied to a permanent location.

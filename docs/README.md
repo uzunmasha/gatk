@@ -1,8 +1,7 @@
-# uzunmasha/gatk: Documentation
+# GATK pipeline documentation
 
-The uzunmasha/gatk documentation is split into the following pages:
+The documentation is split into the following pages:
 
-- [Usage](usage.md)
-  - An overview of how the pipeline works, how to run it and a description of all of the different command-line flags.
-- [Output](output.md)
-  - An overview of the different results produced by the pipeline and how to interpret them.
+- [Usage](usage.md): workflow overview, input format, run commands, and execution profiles.
+- [Parameters](params.md): complete reference for the parameters currently defined by the pipeline.
+- [Output](output.md): published outputs, cached reference indexes, and process outputs in the Nextflow work directory.
