@@ -1,0 +1,111 @@
+name: CI tests
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - "**.nf"
+      - "nextflow.config"
+      - "nextflow_schema.json"
+      - "nf-test.config"
+      - "modules/**"
+      - "subworkflows/**"
+      - "workflows/**"
+      - "workflow/**"
+      - "conf/**"
+      - "assets/**"
+      - "bin/**"
+      - "tests/**"
+      - "test_data/**"
+      - "**.nf.test"
+      - "!**.md"
+  pull_request:
+    paths:
+      - "**.nf"
+      - "nextflow.config"
+      - "nextflow_schema.json"
+      - "nf-test.config"
+      - "modules/**"
+      - "subworkflows/**"
+      - "workflows/**"
+      - "workflow/**"
+      - "conf/**"
+      - "assets/**"
+      - "bin/**"
+      - "tests/**"
+      - "test_data/**"
+      - "**.nf.test"
+      - ".github/workflows/**"
+      - "!**.md"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    env:
+      NXF_ANSI_LOG: false
+      HOME: ${{ github.workspace }}
+      MODULES_TESTDATA_BASE_PATH: ${{ github.workspace }}/test_data/modules
+
+    steps:
+      - name: Setup actions bin dir
+        run: |
+          mkdir -p "$RUNNER_TEMP/bin"
+          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
+
+      - name: Install Git LFS
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git-lfs
+
+      - name: Checkout pipeline code
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+
+      - name: Setup Nextflow
+        run: |
+          curl -fsSL https://github.com/nextflow-io/nextflow/releases/latest/download/nextflow \
+            -o "$RUNNER_TEMP/bin/nextflow"
+          chmod +x "$RUNNER_TEMP/bin/nextflow"
+
+      - name: Install nf-test
+        run: |
+          NF_TEST_URL=$(curl -fsSL \
+            https://api.github.com/repos/askimed/nf-test/releases/latest \
+            | grep -o 'https://[^"]*nf-test[^"]*\.tar\.gz' \
+            | head -n 1)
+
+          if [ -z "$NF_TEST_URL" ]; then
+            echo "Error: could not resolve nf-test download URL"
+            exit 1
+          fi
+
+          curl -fsSL "$NF_TEST_URL" -o nf-test.tar.gz
+          tar xzf nf-test.tar.gz
+
+          mkdir -p "$HOME/.nf-test"
+          mv nf-test.jar "$HOME/.nf-test/"
+          chmod +x nf-test
+          mv nf-test "$RUNNER_TEMP/bin/"
+
+          rm nf-test.tar.gz
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            --platform linux/amd64 \
+            -t gatk-pipeline:v1.0.0 \
+            -f docker/Dockerfile .
+
+      - name: Run nf-test
+        run: nf-test test . --ci --profile ci,docker

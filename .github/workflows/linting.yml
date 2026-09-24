@@ -1,0 +1,55 @@
+name: nf-core linting
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+  release:
+    types: [published]
+
+jobs:
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pre-commit framework
+        run: pip install -U pip pre-commit
+
+      - name: Run pre-commit
+        run: pre-commit run --all-files
+
+  nf-core:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Nextflow
+        uses: nf-core/setup-nextflow@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install nf-core
+        run: pip install -U pip nf-core
+
+      - name: Run nf-core pipelines lint
+        run: nf-core -l lint_log.txt pipelines lint --dir "${GITHUB_WORKSPACE}" --markdown lint_results.md
+
+      - name: Save full lint results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: linting-logs
+          path: |
+            lint_log.txt
+            lint_results.md
